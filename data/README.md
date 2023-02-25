@@ -1,0 +1,1 @@
+### Basic AiXpand processing node capability test

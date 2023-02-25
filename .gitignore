@@ -1,0 +1,10 @@
+
+data/MNIST/raw/
+
+output/logs/
+
+output/models/
+
+models/__pycache__/
+
+utils/__pycache__/
