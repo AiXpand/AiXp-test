@@ -1,1 +1,5 @@
-# AiXp_test
+
+```
+docker build -t eetest .
+
+```
