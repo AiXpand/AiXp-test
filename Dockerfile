@@ -7,4 +7,6 @@ COPY  . /test_app
 
 # RUN pip install --no-cache-dir --upgrade /code/requirements.txt
 
+ENV AIXP_DOCKER Yes
+
 CMD ["python","test.py"]

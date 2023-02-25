@@ -12,13 +12,16 @@ FILE_FMT = '%Y%m%d_%H%M%S'
 FILE_PREFIX =  strftime(FILE_FMT, localtime(time()))
 
 
+def time_to_str(tm):
+  return strftime(FMT, localtime(tm))
+  
 def LOG(s):
   now = time()
-  str_now =  strftime(FMT, localtime(now))
+  str_now = time_to_str(now)
   idx = len(logdata) + 1
   logdata[str_now] = str(s)
   print('[{:04} {}] {}'.format(idx,str_now, str(s)), flush=True)
-  save_json(logdata, FILE_PREFIX, folder='logs')
+  save_json(logdata, folder='logs')
   return
   
 
@@ -37,9 +40,14 @@ def get_packages():
 
 
 def save_json(obj, fn='', folder='results'):
+  running_in_docker = os.environ.get('AIXP_DOCKER', False)
   subfolder = os.path.join('./output', folder)
   os.makedirs(subfolder, exist_ok=True)
-  fn = "{}{}.txt".format(FILE_PREFIX, ('_' + fn) if len(fn) > 0 else '')
+  fn = "{}{}{}.txt".format(
+    FILE_PREFIX, 
+    "_dokr" if running_in_docker else '_bare',
+    ('_' + fn) if len(fn) > 0 else ''
+  )  
   path = os.path.join(subfolder, fn)
   with open(path, 'wt') as fh:
     json.dump(obj, fh, indent=4)

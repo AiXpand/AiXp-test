@@ -1,16 +1,18 @@
 import numpy as np
 import torch as th
 import sys
+import os
 from time import time
 
 from models.simple_classifiers import SimpleMNISTClassifier
 
-from utils.log import cwd, LOG, get_packages, save_json
+from utils.log import cwd, LOG, get_packages, save_json, FILE_PREFIX, time_to_str
 from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
 if __name__ == '__main__':
+  running_in_docker = os.environ.get('AIXP_DOCKER', False)
   BATCH_SIZE = 512
   EPOCHS = 100
   EARLY_STOPPING, PATIENCE = True, 5
@@ -21,16 +23,18 @@ if __name__ == '__main__':
   
   packs = get_packages()
   path = cwd()
-  LOG("Running test '{}', py: {}...".format(path,sys.version))
+  LOG("Running test '{}', py: {}, Docker container: {}...".format(path,sys.version, running_in_docker))
   LOG("Packages: \n{}".format("\n".join(packs)))
   t_start = time()
   dev = th.device('cpu')
+  device_name = 'cpu'
   if FORCE_CPU:
     LOG("Forcing default use of CPU")
   else:
     if th.cuda.is_available():
       dev = th.device('cuda')
-      LOG('GPU device available: {}'.format(th.cuda.get_device_name('cuda')))
+      device_name = th.cuda.get_device_name('cuda')
+      LOG('GPU device available: {}'.format(device_name))
     else:
       LOG("Cuda is not available...")
   
@@ -66,6 +70,8 @@ if __name__ == '__main__':
   LOG("Results after {:.2f}s process:".format(total_time))
   m = res.pop('MODEL')
   res['TOTAL_TIME'] = total_time
+  res['DEVICE'] = device_name
+  res['DATE'] = time_to_str(time())
   res['MODEL'] = m
   maxk = max(len(x) for x in res)
   for k in res:
