@@ -19,12 +19,16 @@ FILE_PREFIX =  strftime(FILE_FMT, localtime(time()))
 def time_to_str(tm):
   return strftime(FMT, localtime(tm))
   
-def LOG(s):
+def LOG(s, mark=False):
   now = time()
   str_now = time_to_str(now)
   idx = "{:04} ".format(len(logdata) + 1)
   logdata[idx + str_now] = str(s)
-  print('[{}{}] {}'.format(idx,str_now, str(s)), flush=True)
+  msg = '[{}{}] {}'.format(idx,str_now, str(s))
+  if mark:
+    print('\x1b[1;32m' + msg + '\x1b[0m', flush=True)
+  else:
+    print(msg, flush=True)
   save_json(logdata, folder='logs')
   return
   

@@ -9,5 +9,6 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 
 ENV AIXP_DOCKER Yes
+ENV EE_ID TestAppImg
 
 CMD ["python","test.py"]

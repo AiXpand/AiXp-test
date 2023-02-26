@@ -1,22 +1,21 @@
-import numpy as np
 import torch as th
 import sys
 import os
 import json
 from time import time
-from collections import OrderedDict
 
 from models.simple_classifiers import SimpleMNISTClassifier
 
-from utils.log import cwd, LOG, get_packages, save_json, time_to_str, history_report, get_empty_train_log, show_train_log
+from utils.log import cwd, LOG, get_packages, save_json, history_report, get_empty_train_log, show_train_log
 from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.2.1.0'
+__VER__ = '0.2.2.0'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
+  ee_id = os.environ.get('EE_ID', 'bare_app')
   BATCH_SIZE = 512
   EPOCHS = 100
   EARLY_STOPPING, PATIENCE = True, 5
@@ -27,7 +26,8 @@ def test_main():
   
   packs = get_packages()
   path = cwd()
-  LOG("Running AiXp test v{} '{}', py: {}, Docker container: {}...".format(
+  LOG("Running {} test v{} '{}', py: {}, Docker container: {}...".format(
+    ee_id,
     __VER__,
     path,sys.version, running_in_docker
   ))
@@ -83,7 +83,7 @@ def test_main():
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
   history_report()
-  LOG("Send this to AiXp team:\n\n{}".format(json.dumps(dct_result, indent=4)))
+  LOG("Send this to AiXp team:\n\n{}".format(json.dumps(dct_result, indent=4)), mark=True)
   return
   
 if __name__ == '__main__':
