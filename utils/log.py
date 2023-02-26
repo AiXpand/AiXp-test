@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import pkg_resources
+
 import json
 import pandas as pd
 pd.set_option('display.max_rows', 500)
@@ -38,6 +38,7 @@ def cwd():
   
   
 def get_packages():
+  import pkg_resources
   packs = [x for x in pkg_resources.working_set]
   maxlen = max([len(x.key) for x in packs]) + 1
   packs = [
