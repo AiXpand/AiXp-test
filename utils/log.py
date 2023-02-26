@@ -1,7 +1,11 @@
-
+import numpy as np
 import os
 import pkg_resources
 import json
+import pandas as pd
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
 
 from collections import OrderedDict
 from time import time, strftime, localtime
@@ -18,9 +22,9 @@ def time_to_str(tm):
 def LOG(s):
   now = time()
   str_now = time_to_str(now)
-  idx = len(logdata) + 1
-  logdata[str_now] = str(s)
-  print('[{:04} {}] {}'.format(idx,str_now, str(s)), flush=True)
+  idx = "{:04} ".format(len(logdata) + 1)
+  logdata[idx + str_now] = str(s)
+  print('[{}{}] {}'.format(idx,str_now, str(s)), flush=True)
   save_json(logdata, folder='logs')
   return
   
@@ -52,4 +56,95 @@ def save_json(obj, fn='', folder='results'):
   with open(path, 'wt') as fh:
     json.dump(obj, fh, indent=4)
   return
+
+def get_empty_train_log():
+  dct_result = OrderedDict()
+  dct_result['DEVICE']        = None
+  dct_result['DATE']          = time_to_str(time())
+  dct_result['DOCKER']        = None
+  dct_result['TOTAL_TIME']    = None
+
+  dct_result['NR_BATCHES']    = None
   
+  dct_result['EPOCH_TIMINGS'] = []
+  dct_result['EPOCH_MIN']     = None
+  dct_result['EPOCH_MAX']     = None
+  dct_result['EPOCH_STD']     = None
+  
+  dct_result['BATCH_TIMINGS'] = []
+  dct_result['BATCH_MIN']     = None
+  dct_result['BATCH_MAX']     = None
+  dct_result['BATCH_STD']     = None
+  
+  dct_result['EVAL_TIMINGS']  = []
+  dct_result['EVAL_MIN']      = None
+  dct_result['EVAL_MAX']      = None
+  dct_result['EVAL_STD']      = None
+  
+  dct_result['BEST_EPOCH']    = 0
+  dct_result['BEST_DEV']      = 0
+  dct_result['FN']            = None
+  dct_result['MODEL']         = None 
+  return dct_result
+
+def show_train_log(dct_result, skip=['FN', 'MODEL']):
+  maxk = max(len(x) for x in dct_result)
+  for k in dct_result:
+    if isinstance(dct_result[k], list):
+      fv = round(np.mean(dct_result[k]),5)
+      v = "{:.4f}s".format(fv)    
+      dct_result[k] = fv
+    else:
+      v = str(dct_result[k])     
+      if not isinstance(dct_result[k], (int, float)):
+        dct_result[k] = v
+    if k in skip:
+      continue
+    LOG("{} {}".format(
+      k + ' ' * (maxk - len(k)), 
+      v,
+    ))
+  return
+  
+
+def history_report(folder='./output/results', 
+                   stats_columns=[
+                     'EPOCH_TIMINGS',
+                     'EPOCH_STD',
+                     'BATCH_TIMINGS', 
+                     'BATCH_STD', 
+                     'EVAL_TIMINGS', 
+                     'EVAL_STD', 
+                     'BEST_DEV',
+                     'NR_BATCHES',
+                    ],
+                   ):
+  files = os.listdir(folder)
+  files = [os.path.join(folder, x) for x in files if ('.txt' in x or '.json' in x)]
+  lst_data = []
+  for fn in files:
+    try:
+      with open(fn, 'rt') as fh:
+        data = json.load(fh)
+        data['JSON'] = fn
+      lst_data.append(data)
+    except:
+      pass
+  devices = set(x['DEVICE'] for x in lst_data)
+  for device in devices:
+    LOG("**********************************************************")
+    LOG("History report for device '{}'".format(device))
+    dev_data = [x for x in lst_data if x['DEVICE'] == device]
+    dokr_data = [x for x in dev_data if (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
+    bare_data = [x for x in dev_data if not (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
+    if len(bare_data) > 0:
+      df_bare = pd.DataFrame(bare_data)[stats_columns]
+      descr = "\n".join(['        ' + x for x in str(df_bare.describe()).split('\n')])
+      LOG("  Direct run:\n{}".format(descr))
+    if len(dokr_data) > 0:
+      df_dokr = pd.DataFrame(dokr_data)[stats_columns]
+      descr = "\n".join(['        ' + x for x in str(df_dokr.describe()).split('\n')])
+      LOG("  Docker run:\n{}".format(descr))
+  return
+
+    

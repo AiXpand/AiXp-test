@@ -3,16 +3,19 @@ import torch as th
 import sys
 import os
 from time import time
+from collections import OrderedDict
 
 from models.simple_classifiers import SimpleMNISTClassifier
 
-from utils.log import cwd, LOG, get_packages, save_json, FILE_PREFIX, time_to_str
+from utils.log import cwd, LOG, get_packages, save_json, time_to_str, history_report, get_empty_train_log, show_train_log
 from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-if __name__ == '__main__':
-  running_in_docker = os.environ.get('AIXP_DOCKER', False)
+__VER__ = '0.2.1.0'
+
+def test_main():
+  running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
   BATCH_SIZE = 512
   EPOCHS = 100
   EARLY_STOPPING, PATIENCE = True, 5
@@ -23,7 +26,10 @@ if __name__ == '__main__':
   
   packs = get_packages()
   path = cwd()
-  LOG("Running test '{}', py: {}, Docker container: {}...".format(path,sys.version, running_in_docker))
+  LOG("Running AiXp test v{} '{}', py: {}, Docker container: {}...".format(
+    __VER__,
+    path,sys.version, running_in_docker
+  ))
   LOG("Packages: \n{}".format("\n".join(packs)))
   t_start = time()
   dev = th.device('cpu')
@@ -53,10 +59,14 @@ if __name__ == '__main__':
   LOG("  Following model created and deployed on device {}:\n{}".format(next(model.parameters()).device, model))
   
   LOG("Training the model...")
-  res = train_classifier(
-    model, 
-    train_loader, 
-    test_loader,
+  dct_result = get_empty_train_log()
+  dct_result['DOCKER'] = running_in_docker
+  dct_result['DEVICE'] = device_name
+  _ = train_classifier(
+    model=model, 
+    train_loader=train_loader, 
+    test_loader=test_loader,
+    dct_result=dct_result,
     optimizer=th.optim.NAdam, 
     lr=1e-4,
     loss=th.nn.CrossEntropyLoss(), 
@@ -68,24 +78,11 @@ if __name__ == '__main__':
   LOG("  Done training.")
   total_time = round(time() - t_start,2)
   LOG("Results after {:.2f}s process:".format(total_time))
-  m = res.pop('MODEL')
-  res['TOTAL_TIME'] = total_time
-  res['DEVICE'] = device_name
-  res['DATE'] = time_to_str(time())
-  res['MODEL'] = m
-  maxk = max(len(x) for x in res)
-  for k in res:
-    if isinstance(res[k], list):
-      fv = round(np.mean(res[k]),5)
-      v = "{:.4f}s".format(fv)    
-      res[k] = fv
-    else:
-      v = str(res[k])     
-      if not isinstance(res[k], (int, float)):
-        res[k] = v
-    LOG("{} {}".format(
-      k + ' ' * (maxk - len(k)), 
-      v,
-    ))
-  save_json(res, fn=str(dev.type))
+  dct_result['TOTAL_TIME'] = total_time
+  show_train_log(dct_result)
+  save_json(dct_result, fn=str(dev.type))
+  history_report()
+  return
   
+if __name__ == '__main__':
+  test_main()

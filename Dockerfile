@@ -5,7 +5,8 @@ WORKDIR /test_app
 
 COPY  . /test_app
 
-# RUN pip install --no-cache-dir --upgrade /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
 
 ENV AIXP_DOCKER Yes
 
