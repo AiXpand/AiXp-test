@@ -108,6 +108,7 @@ def show_train_log(dct_result, skip=['FN', 'MODEL']):
   
 
 def history_report(folder='./output/results', 
+                   history='./data/runs',
                    stats_columns=[
                      'EPOCH_TIMINGS',
                      'EPOCH_STD',
@@ -119,8 +120,11 @@ def history_report(folder='./output/results',
                      'NR_BATCHES',
                     ],
                    ):
-  files = os.listdir(folder)
-  files = [os.path.join(folder, x) for x in files if ('.txt' in x or '.json' in x)]
+  files1 = os.listdir(folder)
+  files1 = [os.path.join(folder, x) for x in files1 if ('.txt' in x or '.json' in x)]
+  files2 = os.listdir(history)
+  files2 = [os.path.join(history, x) for x in files2 if ('.txt' in x or '.json' in x)]
+  files = files1 + files2
   lst_data = []
   for fn in files:
     try:

@@ -2,6 +2,7 @@ import numpy as np
 import torch as th
 import sys
 import os
+import json
 from time import time
 from collections import OrderedDict
 
@@ -82,6 +83,7 @@ def test_main():
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
   history_report()
+  LOG("Send this to AiXp team:\n\n{}".format(json.dumps(dct_result, indent=4)))
   return
   
 if __name__ == '__main__':
