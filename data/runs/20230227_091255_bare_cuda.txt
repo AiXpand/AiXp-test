@@ -1,0 +1,23 @@
+{
+    "DEVICE": "NVIDIA GeForce RTX 2080 Ti",
+    "DATE": "2023-02-27 09:12:58",
+    "DOCKER": false,
+    "TOTAL_TIME": 97.1,
+    "NR_BATCHES": 118,
+    "EPOCH_TIMINGS": 1.97118,
+    "EPOCH_MIN": 1.74725,
+    "EPOCH_MAX": 4.8009,
+    "EPOCH_STD": 0.44668,
+    "BATCH_TIMINGS": 0.00935,
+    "BATCH_MIN": 0.004,
+    "BATCH_MAX": 2.93086,
+    "BATCH_STD": 0.04106,
+    "EVAL_TIMINGS": 0.23454,
+    "EVAL_MIN": 0.19269,
+    "EVAL_MAX": 0.30654,
+    "EVAL_STD": 0.02619,
+    "BEST_EPOCH": 37,
+    "BEST_DEV": 0.9914,
+    "FN": "./output/models\\simple_mnist_clf.th",
+    "MODEL": "SimpleMNISTClassifier(\n  (backbone): SimpleConvBackbone(\n    (convs): ModuleList(\n      (0): ConvBlock(\n        (conv): Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (32, 14, 14)\n      (1): ConvBlock(\n        (conv): Conv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (64, 7, 7)\n      (2): ConvBlock(\n        (conv): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (128, 4, 4)\n    )\n  )\n  (conv_to_fc): Flatten(start_dim=1, end_dim=-1)\n  (fc): SimpleFC(\n    (fcs): ModuleList(\n      (0): Dropout(p=0.5, inplace=False)\n      (1): Linear(in_features=2048, out_features=256, bias=True)\n      (2): ReLU6()\n      (3): Dropout(p=0.5, inplace=False)\n    )\n  )\n  (readout): Linear(in_features=256, out_features=10, bias=True)\n)"
+}

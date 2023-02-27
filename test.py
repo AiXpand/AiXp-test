@@ -2,6 +2,9 @@ import torch as th
 import sys
 import os
 import json
+import platform
+import multiprocessing as mp
+
 from time import time
 
 from models.simple_classifiers import SimpleMNISTClassifier
@@ -11,7 +14,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.2.2.0'
+__VER__ = '0.3.1'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -34,7 +37,7 @@ def test_main():
   LOG("Packages: \n{}".format("\n".join(packs)))
   t_start = time()
   dev = th.device('cpu')
-  device_name = 'cpu'
+  device_name = "{} core {}".format(mp.cpu_count(), platform.processor())
   if FORCE_CPU:
     LOG("Forcing default use of CPU")
   else:
@@ -57,9 +60,10 @@ def test_main():
     bn=True,
   )
   model.to(dev)
-  LOG("  Following model created and deployed on device {}:\n{}".format(next(model.parameters()).device, model))
+  _dev = next(model.parameters()).device
+  LOG("  Following model created and deployed on device {}:\n{}".format(_dev, model))
   
-  LOG("Training the model...")
+  LOG("Training the model on {} : {}...".format(_dev,device_name))
   dct_result = get_empty_train_log()
   dct_result['DOCKER'] = running_in_docker
   dct_result['DEVICE'] = device_name
@@ -83,7 +87,7 @@ def test_main():
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
   history_report()
-  LOG("Send this to AiXp team:\n\n{}".format(json.dumps(dct_result, indent=4)), mark=True)
+  LOG("Send this to the team:\n\n{}".format(json.dumps(dct_result, indent=4)), mark=True)
   return
   
 if __name__ == '__main__':

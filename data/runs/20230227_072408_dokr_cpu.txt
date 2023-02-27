@@ -1,0 +1,23 @@
+{
+    "DEVICE": "cpu",
+    "DATE": "2023-02-27 07:24:08",
+    "DOCKER": true,
+    "TOTAL_TIME": 335.83,
+    "NR_BATCHES": 118,
+    "EPOCH_TIMINGS": 8.62052,
+    "EPOCH_MIN": 8.10578,
+    "EPOCH_MAX": 9.79642,
+    "EPOCH_STD": 0.40367,
+    "BATCH_TIMINGS": 0.0686,
+    "BATCH_MIN": 0.01494,
+    "BATCH_MAX": 0.24712,
+    "BATCH_STD": 0.0137,
+    "EVAL_TIMINGS": 0.4508,
+    "EVAL_MIN": 0.41249,
+    "EVAL_MAX": 0.63844,
+    "EVAL_STD": 0.0554,
+    "BEST_EPOCH": 31,
+    "BEST_DEV": 0.9908,
+    "FN": "./output/models/simple_mnist_clf.th",
+    "MODEL": "SimpleMNISTClassifier(\n  (backbone): SimpleConvBackbone(\n    (convs): ModuleList(\n      (0): ConvBlock(\n        (conv): Conv2d(1, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (32, 14, 14)\n      (1): ConvBlock(\n        (conv): Conv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (64, 7, 7)\n      (2): ConvBlock(\n        (conv): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))\n        (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)\n        (act): ReLU6()\n      ) => Output (128, 4, 4)\n    )\n  )\n  (conv_to_fc): Flatten(start_dim=1, end_dim=-1)\n  (fc): SimpleFC(\n    (fcs): ModuleList(\n      (0): Dropout(p=0.5, inplace=False)\n      (1): Linear(in_features=2048, out_features=256, bias=True)\n      (2): ReLU6()\n      (3): Dropout(p=0.5, inplace=False)\n    )\n  )\n  (readout): Linear(in_features=256, out_features=10, bias=True)\n)"
+}
