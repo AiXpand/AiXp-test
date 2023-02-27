@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import platform
 
 import json
 import pandas as pd
@@ -67,6 +68,8 @@ def get_empty_train_log():
   dct_result['DEVICE']        = None
   dct_result['DATE']          = time_to_str(time())
   dct_result['DOCKER']        = None
+  dct_result['OS']            = platform.platform()
+  dct_result['TEST_VERSION']  = None
   dct_result['TOTAL_TIME']    = None
 
   dct_result['NR_BATCHES']    = None

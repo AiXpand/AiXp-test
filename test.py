@@ -14,7 +14,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.3.1'
+__VER__ = '0.3.2'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -65,6 +65,7 @@ def test_main():
   
   LOG("Training the model on {} : {}...".format(_dev,device_name))
   dct_result = get_empty_train_log()
+  dct_result['TEST_VERSION'] = __VER__
   dct_result['DOCKER'] = running_in_docker
   dct_result['DEVICE'] = device_name
   _ = train_classifier(
