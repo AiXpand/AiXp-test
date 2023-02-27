@@ -1,5 +1,5 @@
 {
-    "DEVICE": "cpu",
+    "DEVICE": "cpu 12 core",
     "DATE": "2023-02-27 07:24:08",
     "DOCKER": true,
     "TOTAL_TIME": 335.83,

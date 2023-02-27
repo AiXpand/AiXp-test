@@ -14,7 +14,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.3.2'
+__VER__ = '0.3.3'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -29,15 +29,15 @@ def test_main():
   
   packs = get_packages()
   path = cwd()
-  LOG("Running {} test v{} '{}', py: {}, Docker container: {}...".format(
+  LOG("Running {} test v{} '{}', py: {}, OS: {}, Docker: {}".format(
     ee_id,
     __VER__,
-    path,sys.version, running_in_docker
-  ))
+    path, sys.version.split(' ')[0], platform.platform(), running_in_docker
+  ), mark=True)
   LOG("Packages: \n{}".format("\n".join(packs)))
   t_start = time()
   dev = th.device('cpu')
-  device_name = "{} core {}".format(mp.cpu_count(), platform.processor())
+  device_name = "cpu {} core".format(mp.cpu_count())
   if FORCE_CPU:
     LOG("Forcing default use of CPU")
   else:
@@ -63,7 +63,7 @@ def test_main():
   _dev = next(model.parameters()).device
   LOG("  Following model created and deployed on device {}:\n{}".format(_dev, model))
   
-  LOG("Training the model on {} : {}...".format(_dev,device_name))
+  LOG("Training the model on {} : {}...".format(_dev,device_name), mark=True)
   dct_result = get_empty_train_log()
   dct_result['TEST_VERSION'] = __VER__
   dct_result['DOCKER'] = running_in_docker
