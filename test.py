@@ -46,7 +46,7 @@ def test_main():
   str_os = platform.platform().lower()
   if "wsl" in str_os or "microsoft" in str_os or "windows" in str_os:
     host = "windows"
-  elif 'ubuntu' in str_os or 'linux' in str_os:
+  elif 'ubuntu' in str_os:
     host = 'linux'
   else:
     host = str_os[:5]  
