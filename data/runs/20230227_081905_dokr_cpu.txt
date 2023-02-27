@@ -1,5 +1,5 @@
 {
-    "DEVICE": "cpu 12 core",
+    "DEVICE": "cpu 12 core windows",
     "DATE": "2023-02-27 08:19:05",
     "DOCKER": true,
     "OS": "Linux-5.10.16.3-microsoft-standard-WSL2-x86_64-with-glibc2.27",

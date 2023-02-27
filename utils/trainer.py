@@ -41,7 +41,6 @@ def train_classifier(model : AbstractClassifier,
   
   for epoch in range(1, epochs + 1):
     t0epoch = time()
-    log_func("  Starting epoch {:03}".format(epoch)) 
     n_batches = 0
     for th_bx, th_by in train_loader:
       n_batches += 1
@@ -64,8 +63,9 @@ def train_classifier(model : AbstractClassifier,
       dct_result['BEST_EPOCH'] = epoch
       best_weights = deepcopy(model.state_dict())
       lost_patience = 0
-      log_func("    Found new best acc={:.2f}% at epoch {}".format(dev_result * 100, epoch))
+      print("*", end='', flush=True)
     else:
+      print(".", end='', flush=True)
       lost_patience += 1
       
     if lost_patience > patience:

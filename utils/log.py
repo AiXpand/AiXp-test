@@ -64,11 +64,13 @@ def save_json(obj, fn='', folder='results'):
   return
 
 def get_empty_train_log():
+
   dct_result = OrderedDict()
   dct_result['DEVICE']        = None
   dct_result['DATE']          = time_to_str(time())
   dct_result['DOCKER']        = None
   dct_result['OS']            = platform.platform()
+  dct_result['OS_SHORT']      = None
   dct_result['TEST_VERSION']  = None
   dct_result['TOTAL_TIME']    = None
 
@@ -127,6 +129,7 @@ def history_report(folder='./output/results',
                      'BEST_DEV',
                      'NR_BATCHES',
                     ],
+                   stats_lines=['count', 'min', 'max','std']
                    ):
   files1 = os.listdir(folder)
   files1 = [os.path.join(folder, x) for x in files1 if ('.txt' in x or '.json' in x)]
@@ -151,11 +154,13 @@ def history_report(folder='./output/results',
     bare_data = [x for x in dev_data if not (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
     if len(bare_data) > 0:
       df_bare = pd.DataFrame(bare_data)[stats_columns]
-      descr = "\n".join(['        ' + x for x in str(df_bare.describe()).split('\n')])
+      df_stats = df_bare.describe().loc[stats_lines]
+      descr = "\n".join(['        ' + x for x in str(df_stats).split('\n')])
       LOG("  Direct run:\n{}".format(descr))
     if len(dokr_data) > 0:
       df_dokr = pd.DataFrame(dokr_data)[stats_columns]
-      descr = "\n".join(['        ' + x for x in str(df_dokr.describe()).split('\n')])
+      df_stats = df_dokr.describe().loc[stats_lines]
+      descr = "\n".join(['        ' + x for x in str(df_stats).split('\n')])
       LOG("  Docker run:\n{}".format(descr))
   return
 

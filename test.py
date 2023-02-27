@@ -14,11 +14,12 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.3.3'
+__VER__ = '0.4.1'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
   ee_id = os.environ.get('EE_ID', 'bare_app')
+  show_packs = os.environ.get('SHOW_PACKS')
   BATCH_SIZE = 512
   EPOCHS = 100
   EARLY_STOPPING, PATIENCE = True, 5
@@ -26,18 +27,30 @@ def test_main():
   
   if len(sys.argv) > 1 and 'cpu' in sys.argv[1].lower():
     FORCE_CPU = True 
-  
   packs = get_packages()
   path = cwd()
   LOG("Running {} test v{} '{}', py: {}, OS: {}, Docker: {}".format(
     ee_id,
     __VER__,
     path, sys.version.split(' ')[0], platform.platform(), running_in_docker
-  ), mark=True)
-  LOG("Packages: \n{}".format("\n".join(packs)))
+    ), mark=True
+  )
+  
+  LOG("Show packages: {}".format(show_packs))
+  if show_packs in ['Yes', 'YES', 'yes']:
+    LOG("Packages: \n{}".format("\n".join(packs)))
   t_start = time()
+  
   dev = th.device('cpu')
-  device_name = "cpu {} core".format(mp.cpu_count())
+  
+  str_os = platform.platform().lower()
+  if "wsl" in str_os or "microsoft" in str_os or "windows" in str_os:
+    host = "windows"
+  else:
+    host = str_os[:5]  
+  
+  device_name = "cpu {} core {}".format(mp.cpu_count(), host)
+  
   if FORCE_CPU:
     LOG("Forcing default use of CPU")
   else:
@@ -63,7 +76,7 @@ def test_main():
   _dev = next(model.parameters()).device
   LOG("  Following model created and deployed on device {}:\n{}".format(_dev, model))
   
-  LOG("Training the model on {} : {}...".format(_dev,device_name), mark=True)
+  LOG("Training the model on {} : '{}'...".format(_dev,device_name), mark=True)
   dct_result = get_empty_train_log()
   dct_result['TEST_VERSION'] = __VER__
   dct_result['DOCKER'] = running_in_docker
