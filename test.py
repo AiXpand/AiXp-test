@@ -14,7 +14,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.4.3'
+__VER__ = '0.4.4'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -99,7 +99,7 @@ def test_main():
   )
   LOG("  Done training.")
   total_time = round(time() - t_start,2)
-  LOG("Results after {:.2f}s process:".format(total_time))
+  LOG("Results after {:.2f}s process:".format(total_time), mark=True)
   dct_result['TOTAL_TIME'] = total_time
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
