@@ -14,7 +14,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.4.4'
+__VER__ = '0.4.5'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
