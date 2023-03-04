@@ -10,3 +10,5 @@ models/__pycache__/
 utils/__pycache__/
 
 output/results/
+
+.spyproject/config/

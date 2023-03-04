@@ -90,6 +90,14 @@ def get_empty_train_log():
   dct_result['EVAL_MIN']      = None
   dct_result['EVAL_MAX']      = None
   dct_result['EVAL_STD']      = None
+
+
+  dct_result['INFER_TIMINGS']  = []
+  dct_result['INFER_MIN']      = None
+  dct_result['INFER_MAX']      = None
+  dct_result['INFER_STD']      = None
+  
+  dct_result['INFER_GAIN']     = None
   
   dct_result['BEST_EPOCH']    = 0
   dct_result['BEST_DEV']      = 0
@@ -126,10 +134,24 @@ def history_report(folder='./output/results',
                      'BATCH_STD', 
                      'EVAL_TIMINGS', 
                      'EVAL_STD', 
+                     'INFER_TIMINGS',
+                     'INFER_STD',
                      'BEST_DEV',
                      'NR_BATCHES',
-                    ],
-                   stats_lines=['count', 'min', 'max','std']
+                   ],
+                   rename_columns=[
+                     'EPOCH_TIME',
+                     'EPOCH_STD',
+                     'BATCH_TIME', 
+                     'BATCH_STD', 
+                     'EVAL_TIME', 
+                     'EVAL_STD', 
+                     'INFER_TIME',
+                     'INFER_STD',
+                     'BEST_DEV',
+                     'NR_BATCH',
+                   ],
+                   stats_lines=['count', 'mean', 'min', 'max','std']
                    ):
   files1 = os.listdir(folder)
   files1 = [os.path.join(folder, x) for x in files1 if ('.txt' in x or '.json' in x)]
@@ -153,12 +175,18 @@ def history_report(folder='./output/results',
     dokr_data = [x for x in dev_data if (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
     bare_data = [x for x in dev_data if not (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
     if len(bare_data) > 0:
-      df_bare = pd.DataFrame(bare_data)[stats_columns]
+      df_bare = pd.DataFrame(bare_data)
+      df_bare = df_bare[[x for x in stats_columns if x in df_bare.columns]]
+      renamer = {k:v for k,v in zip(stats_columns, rename_columns) if k in df_bare.columns}
+      df_bare.rename(columns=renamer, inplace=True)
       df_stats = df_bare.describe().loc[stats_lines]
       descr = "\n".join(['        ' + x for x in str(df_stats).split('\n')])
       LOG("  Direct run:\n{}".format(descr))
     if len(dokr_data) > 0:
-      df_dokr = pd.DataFrame(dokr_data)[stats_columns]
+      df_dokr = pd.DataFrame(dokr_data)
+      df_dokr = df_dokr[[x for x in stats_columns if x in df_dokr.columns]]
+      renamer = {k:v for k,v in zip(stats_columns, rename_columns) if k in df_dokr.columns}
+      df_dokr.rename(columns=renamer, inplace=True)
       df_stats = df_dokr.describe().loc[stats_lines]
       descr = "\n".join(['        ' + x for x in str(df_stats).split('\n')])
       LOG("  Docker run:\n{}".format(descr))

@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2017-2022 Lummetry.AI (Knowledge Investment Group SRL). All Rights Reserved.
+Copyright (C) 2017-2021 Andrei Damian, andrei.damian@me.com,  All rights reserved.
 
+This software and its associated documentation are the exclusive property of the creator. 
+Unauthorized use, copying, or distribution of this software, or any portion thereof, 
+is strictly prohibited.
 
-* NOTICE:  
-*   All information contained herein is, and remains the property of Knowledge Investment Group SRL.  
-*   The intellectual and technical concepts contained herein are proprietary to Knowledge Investment Group SRL
-*   and may be covered by Romanian and Foreign Patents, patents in process, and are protected by trade secret 
-*   or copyright law. Dissemination of this information or reproduction of this material * is strictly forbidden 
-*   unless prior written permission is obtained from Knowledge Investment Group SRL.
+Parts of this software are licensed and used in software developed by Knowledge Investment Group SRL.
+Any software proprietary to Knowledge Investment Group SRL is covered by Romanian and  Foreign Patents, 
+patents in process, and are protected by trade secret or copyright law.
 
+Dissemination of this information or reproduction of this material is strictly forbidden unless prior 
+written permission from the author.
 
-
-@copyright: Lummetry.AI
-@author: Lummetry.AI - AID
-@project: 
-@description:
-Created on Sat Feb 25 10:20:21 2023
 """
+
 import os
 import numpy as np
 import torch as th
@@ -30,25 +27,33 @@ class AbstractClassifier(th.nn.Module):
     super().__init__()
     return
 
-  def batch_predict(self, inputs, return_th=False):
-    dev = self.readout.weight.device
-    if isinstance(inputs, np.ndarray):
-      th_x = th.tensor(inputs, device=dev)
-    elif isinstance(inputs, th.Tensor):
-      th_x = inputs
+  def batch_predict(self, inputs, return_th=False, use_inference=True):
+    self.eval()
+    result = None
+    
+    if use_inference:
+      func = th.inference_mode
     else:
-      raise ValueError("Unknown inputs of type {}".format(type(inputs)))
-    if th_x.device != dev:
-      th_x = th_x.to(dev)
-    with th.no_grad():
-      self.eval()
+      func = th.no_grad
+
+    with func():      
+      dev = self.readout.weight.device
+      if isinstance(inputs, np.ndarray):
+        th_x = th.tensor(inputs, device=dev)
+      elif isinstance(inputs, th.Tensor):
+        th_x = inputs
+      else:
+        raise ValueError("Unknown inputs of type {}".format(type(inputs)))
+      if th_x.device != dev:
+        th_x = th_x.to(dev)
       th_yh = self(th_x)
-      self.train()
-    if not return_th:
-      np_yh = th_yh.cpu().numpy()
-      return np_yh
-    else:
-      return th_yh
+      if not return_th:
+        result = th_yh.cpu().numpy()
+      else:
+        result = th_yh
+
+    self.train()    
+    return result
     
     
   def load_from_file(self, fn='simple_mnist_clf.th', directory='./output/models'):
@@ -65,11 +70,11 @@ class AbstractClassifier(th.nn.Module):
     th.save(state_dict, fn)
     return fn
   
-  def evaluate(self, test_loader):
+  def evaluate(self, test_loader, use_inference=False):
     assert isinstance(test_loader, th.utils.data.DataLoader)
     res = []
     for th_bx, th_by in test_loader:
-      th_yh = self.batch_predict(th_bx, return_th=True)
+      th_yh = self.batch_predict(th_bx, return_th=True, use_inference=use_inference)
       th_yp = th_yh.argmax(axis=1).reshape(-1)
       th_res = th_yp == th_by
       res.append(th_res)
@@ -179,6 +184,15 @@ class SimpleMNISTClassifier(AbstractClassifier):
     th_x = self.fc(th_x)
     th_out = self.readout(th_x)
     return th_out
+  
+  
+  def freeze_backbone(self):
+    if False:
+      for param in self.backbone.parameters():
+        param.requires_grad = False      
+    else:
+      self.backbone.requires_grad_(False)
+    return self.backbone.state_dict()
   
 
 

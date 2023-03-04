@@ -1,3 +1,19 @@
+"""
+Copyright (C) 2017-2021 Andrei Damian, andrei.damian@me.com,  All rights reserved.
+
+This software and its associated documentation are the exclusive property of the creator. 
+Unauthorized use, copying, or distribution of this software, or any portion thereof, 
+is strictly prohibited.
+
+Parts of this software are licensed and used in software developed by Knowledge Investment Group SRL.
+Any software proprietary to Knowledge Investment Group SRL is covered by Romanian and  Foreign Patents, 
+patents in process, and are protected by trade secret or copyright law.
+
+Dissemination of this information or reproduction of this material is strictly forbidden unless prior 
+written permission from the author.
+
+"""
+import numpy as np
 import torch as th
 import sys
 import os
@@ -14,7 +30,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.4.5'
+__VER__ = '0.5.1'
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -24,6 +40,9 @@ def test_main():
   EPOCHS = 100
   EARLY_STOPPING, PATIENCE = True, 5
   FORCE_CPU = False
+  
+  in_debug = getattr(sys, 'gettrace', None) is not None
+  LOG("Running in DEBUG mode" if in_debug else "Running in normal mode")
   
   if len(sys.argv) > 1 and 'cpu' in sys.argv[1].lower():
     FORCE_CPU = True 
@@ -95,12 +114,17 @@ def test_main():
     epochs=EPOCHS,
     earlystopping=EARLY_STOPPING, 
     patience=PATIENCE,    
-    log_func=LOG    
+    log_func=LOG    ,
+    freeze_after=2 if in_debug else None,
   )
   LOG("  Done training.")
   total_time = round(time() - t_start,2)
   LOG("Results after {:.2f}s process:".format(total_time), mark=True)
   dct_result['TOTAL_TIME'] = total_time
+  dct_result['INFER_GAIN'] = round(
+    (np.mean(dct_result['EVAL_TIMINGS']) - np.mean(dct_result['INFER_TIMINGS'])) / 
+    np.mean(dct_result['EVAL_TIMINGS']) * 100,1
+  )
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
   history_report()
