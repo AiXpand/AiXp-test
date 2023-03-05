@@ -72,16 +72,24 @@ class AbstractClassifier(th.nn.Module):
   
   def evaluate(self, test_loader, use_inference=False):
     assert isinstance(test_loader, th.utils.data.DataLoader)
-    res = []
-    for th_bx, th_by in test_loader:
-      th_yh = self.batch_predict(th_bx, return_th=True, use_inference=use_inference)
-      th_yp = th_yh.argmax(axis=1).reshape(-1)
-      th_res = th_yp == th_by
-      res.append(th_res)
-    # end for
-    th_all_res = th.concat(res)
-    np_res = th_all_res.cpu().numpy()
+    if use_inference:
+      func = th.inference_mode
+    else:
+      func = th.no_grad
+      
+    self.eval()
+    with func():
+      res = []
+      for th_bx, th_by in test_loader:
+        th_yh = self(th_bx)
+        th_yp = th_yh.argmax(axis=1).reshape(-1)
+        th_res = th_yp == th_by
+        res.append(th_res)
+      # end for
+      th_all_res = th.concat(res)
+      np_res = th_all_res.cpu().numpy()
     result = np_res.sum() / np_res.shape[0]
+    self.train()
     return result
   
 class ConvBlock(th.nn.Module):

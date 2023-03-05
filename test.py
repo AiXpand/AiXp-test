@@ -30,7 +30,14 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.5.1'
+__VER__ = '0.7.1'
+
+def runs_with_debugger():
+  gettrace = getattr(sys, 'gettrace', None)
+  if gettrace is None:
+    return False
+  else:
+    return not gettrace() is None
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
@@ -41,7 +48,7 @@ def test_main():
   EARLY_STOPPING, PATIENCE = True, 5
   FORCE_CPU = False
   
-  in_debug = getattr(sys, 'gettrace', None) is not None
+  in_debug = runs_with_debugger()
   LOG("Running in DEBUG mode" if in_debug else "Running in normal mode")
   
   if len(sys.argv) > 1 and 'cpu' in sys.argv[1].lower():
@@ -119,12 +126,13 @@ def test_main():
   )
   LOG("  Done training.")
   total_time = round(time() - t_start,2)
-  LOG("Results after {:.2f}s process:".format(total_time), mark=True)
+  LOG("v{} results after {:.2f}s process:".format(__VER__, total_time), mark=True)
   dct_result['TOTAL_TIME'] = total_time
   dct_result['INFER_GAIN'] = round(
     (np.mean(dct_result['EVAL_TIMINGS']) - np.mean(dct_result['INFER_TIMINGS'])) / 
     np.mean(dct_result['EVAL_TIMINGS']) * 100,1
   )
+  dct_result['INFER_CNT'] = len(dct_result['EVAL_TIMINGS'])
   show_train_log(dct_result)
   save_json(dct_result, fn=str(dev.type))
   history_report()

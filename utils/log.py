@@ -96,6 +96,7 @@ def get_empty_train_log():
   dct_result['INFER_MIN']      = None
   dct_result['INFER_MAX']      = None
   dct_result['INFER_STD']      = None
+  dct_result['INFER_CNT']      = None
   
   dct_result['INFER_GAIN']     = None
   
@@ -133,11 +134,10 @@ def history_report(folder='./output/results',
                      'BATCH_TIMINGS', 
                      'BATCH_STD', 
                      'EVAL_TIMINGS', 
-                     'EVAL_STD', 
                      'INFER_TIMINGS',
+                     'EVAL_STD', 
                      'INFER_STD',
-                     'BEST_DEV',
-                     'NR_BATCHES',
+                     'INFER_GAIN',
                    ],
                    rename_columns=[
                      'EPOCH_TIME',
@@ -145,11 +145,10 @@ def history_report(folder='./output/results',
                      'BATCH_TIME', 
                      'BATCH_STD', 
                      'EVAL_TIME', 
-                     'EVAL_STD', 
                      'INFER_TIME',
+                     'EVAL_STD', 
                      'INFER_STD',
-                     'BEST_DEV',
-                     'NR_BATCH',
+                     'INFER_GAIN',
                    ],
                    stats_lines=['count', 'mean', 'min', 'max','std']
                    ):
@@ -174,8 +173,15 @@ def history_report(folder='./output/results',
     dev_data = [x for x in lst_data if x['DEVICE'] == device]
     dokr_data = [x for x in dev_data if (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
     bare_data = [x for x in dev_data if not (x.get('DOCKER', False) or 'dokr' in x['JSON'])]
+    bare_infer_mean = None
+    dokr_infer_mean = None
     if len(bare_data) > 0:
       df_bare = pd.DataFrame(bare_data)
+      bare_epoch_mean = df_bare['EPOCH_TIMINGS'].mean()
+      bare_batch_mean = df_bare['BATCH_TIMINGS'].mean()
+      bare_eval_mean = df_bare['EVAL_TIMINGS'].mean()
+      if 'INFER_TIMINGS' in df_bare.columns:
+        bare_infer_mean = df_bare['INFER_TIMINGS'].mean() 
       df_bare = df_bare[[x for x in stats_columns if x in df_bare.columns]]
       renamer = {k:v for k,v in zip(stats_columns, rename_columns) if k in df_bare.columns}
       df_bare.rename(columns=renamer, inplace=True)
@@ -184,12 +190,25 @@ def history_report(folder='./output/results',
       LOG("  Direct run:\n{}".format(descr))
     if len(dokr_data) > 0:
       df_dokr = pd.DataFrame(dokr_data)
+      dokr_epoch_mean = df_dokr['EPOCH_TIMINGS'].mean()
+      dokr_batch_mean = df_dokr['BATCH_TIMINGS'].mean()
+      dokr_eval_mean = df_dokr['EVAL_TIMINGS'].mean()
+      if 'INFER_TIMINGS' in df_dokr.columns:
+        dokr_infer_mean = df_dokr['INFER_TIMINGS'].mean() 
       df_dokr = df_dokr[[x for x in stats_columns if x in df_dokr.columns]]
       renamer = {k:v for k,v in zip(stats_columns, rename_columns) if k in df_dokr.columns}
       df_dokr.rename(columns=renamer, inplace=True)
       df_stats = df_dokr.describe().loc[stats_lines]
       descr = "\n".join(['        ' + x for x in str(df_stats).split('\n')])
       LOG("  Docker run:\n{}".format(descr))
+    if len(dokr_data) > 0 and len(bare_data) > 0:
+      
+      LOG("  Bare vs Docker gains for '{}':".format(device))
+      LOG("    Epoch: {:>4.1f}%".format((dokr_epoch_mean - bare_epoch_mean) / dokr_epoch_mean * 100))
+      LOG("    Batch: {:>4.1f}%".format((dokr_batch_mean - bare_batch_mean) / dokr_batch_mean * 100))
+      LOG("    Eval:  {:>4.1f}%".format((dokr_eval_mean - bare_eval_mean) / dokr_eval_mean * 100))
+      if dokr_infer_mean is not None and bare_infer_mean is not None:
+        LOG("    Infer: {:>4.1f}%".format((dokr_infer_mean - bare_infer_mean) / dokr_infer_mean * 100))        
   return
 
     
