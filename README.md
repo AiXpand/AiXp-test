@@ -13,6 +13,6 @@ docker run --pull=always --gpus all aixpand/tester
 ### Saving data
 
 ```
-docker volume create 
-docker run --pull=always --gpus all aixpand/tester
+docker volume create tester
+docker run --pull=always --gpus all -v tester:/test_app/output aixpand/tester
 ```

@@ -30,7 +30,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.7.1'
+__VER__ = '0.7.2'
 
 def runs_with_debugger():
   gettrace = getattr(sys, 'gettrace', None)
