@@ -30,7 +30,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.7.2'
+__VER__ = '0.7.3'
 
 def runs_with_debugger():
   gettrace = getattr(sys, 'gettrace', None)
@@ -41,6 +41,7 @@ def runs_with_debugger():
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
+  tz = os.environ.get('TZ', None)
   ee_id = os.environ.get('EE_ID', 'bare_app')
   show_packs = os.environ.get('SHOW_PACKS')
   BATCH_SIZE = 512
@@ -55,10 +56,14 @@ def test_main():
     FORCE_CPU = True 
   packs = get_packages()
   path = cwd()
-  LOG("Running {} test v{} '{}', py: {}, OS: {}, Docker: {}".format(
+  LOG("Running {} test v{} '{}', TZ: {}, py: {}, OS: {}, Docker: {}".format(
     ee_id,
     __VER__,
-    path, sys.version.split(' ')[0], platform.platform(), running_in_docker
+    path, 
+    tz,
+    sys.version.split(' ')[0], 
+    platform.platform(), 
+    running_in_docker
     ), mark=True
   )
   
