@@ -1,5 +1,5 @@
 #FROM python:3.8
-FROM aixpand/exe_eng_pub:env_ext
+FROM aixpand/exe_eng_pub:x64_env_full
 
 WORKDIR /test_app
 
