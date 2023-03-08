@@ -30,7 +30,7 @@ from utils.loader import get_data
 from utils.trainer import train_classifier
 
 
-__VER__ = '0.7.3'
+__VER__ = '0.7.5'
 
 def runs_with_debugger():
   gettrace = getattr(sys, 'gettrace', None)
@@ -41,6 +41,7 @@ def runs_with_debugger():
 
 def test_main():
   running_in_docker = os.environ.get('AIXP_DOCKER', False) != False
+  should_force_cpu = os.environ.get('FORCE_CPU', "No").upper() == "YES"
   tz = os.environ.get('TZ', None)
   ee_id = os.environ.get('EE_ID', 'bare_app')
   show_packs = os.environ.get('SHOW_PACKS')
@@ -52,8 +53,8 @@ def test_main():
   in_debug = runs_with_debugger()
   LOG("Running in DEBUG mode" if in_debug else "Running in normal mode")
   
-  if len(sys.argv) > 1 and 'cpu' in sys.argv[1].lower():
-    FORCE_CPU = True 
+  if (len(sys.argv) > 1 and 'cpu' in sys.argv[1].lower()) or should_force_cpu:
+    FORCE_CPU = True
   packs = get_packages()
   path = cwd()
   LOG("Running {} test v{} '{}', TZ: {}, py: {}, OS: {}, Docker: {}".format(

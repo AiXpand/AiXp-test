@@ -10,5 +10,6 @@ ENV TZ Europe/Bucharest
 ENV AIXP_DOCKER Yes
 ENV EE_ID E2DkrTester
 ENV SHOW_PACKS Yes
+ENV FORCE_CPU No
 
 CMD ["python","test.py"]
